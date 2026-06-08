@@ -23,6 +23,9 @@ function Register() {
 
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match");
+       console.log("Register clicked");
+
+      navigate("/");
       return;
     }
 
