@@ -1,7 +1,40 @@
-@import "tailwindcss";
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6f9;
+}
 
-body{
-  margin:0;
-  background:#f4f7fb;
-  font-family:Arial,sans-serif;
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.auth-card {
+  width: 400px;
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.auth-card h1 {
+  text-align: center;
+}
+
+.toggle-buttons {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.toggle-buttons button {
+  flex: 1;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.active {
+  background: #2563eb;
+  color: white;
 }
