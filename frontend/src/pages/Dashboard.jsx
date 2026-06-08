@@ -1,82 +1,66 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import "./Dashboard.css";
 
 function Dashboard() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
+
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#f4f7fb",
-        padding: "30px",
-      }}
-    >
-      <h1
-        style={{
-          textAlign: "center",
-          marginBottom: "30px",
-        }}
-      >
-        💰 LendLedger Dashboard
-      </h1>
+    <div className="dashboard">
+      <header className="dashboard-header">
+        <h1>LendLedger</h1>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit,minmax(250px,1fr))",
-          gap: "20px",
-        }}
-      >
-        <div
-          style={{
-            background: "white",
-            padding: "20px",
-            borderRadius: "10px",
-            boxShadow:
-              "0 2px 10px rgba(0,0,0,0.1)",
-          }}
-        >
+        <button className="logout-btn" onClick={handleLogout}>
+          Logout
+        </button>
+      </header>
+
+      <div className="welcome-card">
+        <h2>Welcome to LendLedger</h2>
+        <p>
+          Manage lending, borrowing, UPI payments, and account statements in
+          one place.
+        </p>
+      </div>
+
+      <div className="stats-container">
+        <div className="stat-card lend">
           <h3>Total Lent</h3>
-          <h2>₹0</h2>
+          <p>₹0</p>
         </div>
 
-        <div
-          style={{
-            background: "white",
-            padding: "20px",
-            borderRadius: "10px",
-            boxShadow:
-              "0 2px 10px rgba(0,0,0,0.1)",
-          }}
-        >
+        <div className="stat-card borrow">
           <h3>Total Borrowed</h3>
-          <h2>₹0</h2>
+          <p>₹0</p>
         </div>
 
-        <div
-          style={{
-            background: "white",
-            padding: "20px",
-            borderRadius: "10px",
-            boxShadow:
-              "0 2px 10px rgba(0,0,0,0.1)",
-          }}
-        >
-          <h3>Pending Receive</h3>
-          <h2>₹0</h2>
+        <div className="stat-card balance">
+          <h3>Net Balance</h3>
+          <p>₹0</p>
         </div>
+      </div>
 
-        <div
-          style={{
-            background: "white",
-            padding: "20px",
-            borderRadius: "10px",
-            boxShadow:
-              "0 2px 10px rgba(0,0,0,0.1)",
-          }}
-        >
-          <h3>Pending Pay</h3>
-          <h2>₹0</h2>
-        </div>
+      <div className="action-grid">
+        <button onClick={() => navigate("/transactions")}>
+          Add Transaction
+        </button>
+
+        <button onClick={() => navigate("/statement")}>
+          View Statement
+        </button>
+
+        <button onClick={() => navigate("/upi")}>
+          UPI Payments
+        </button>
+
+        <button onClick={() => navigate("/contacts")}>
+          Manage Contacts
+        </button>
       </div>
     </div>
   );
