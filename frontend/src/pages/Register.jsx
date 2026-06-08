@@ -1,76 +1,21 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+const handleSubmit = (e) => {
+  e.preventDefault();
 
-function Register() {
-  const navigate = useNavigate();
+  if (!formData.name || !formData.email || !formData.password) {
+    alert("Please fill all fields");
+    return;
+  }
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  if (formData.password !== formData.confirmPassword) {
+    alert("Passwords do not match");
+    return;
+  }
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  console.log("Register Data:", formData);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  localStorage.setItem("token", "demo-token");
 
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match");
-       console.log("Register clicked");
+  alert("Registration Successful!");
 
-      navigate("/");
-      return;
-    }
-
-    console.log("Register Data:", formData);
-
-    navigate("/");
-  };
-
-  return (
-    <div className="auth-container">
-      <div className="auth-box">
-        <h2>Register</h2>
-
-        <form onSubmit={handleSubmit}>
-          <input
-            name="name"
-            placeholder="Name"
-            onChange={handleChange}
-          />
-
-          <input
-            name="email"
-            placeholder="Email"
-            onChange={handleChange}
-          />
-
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            onChange={handleChange}
-          />
-
-          <input
-            name="confirmPassword"
-            type="password"
-            placeholder="Confirm Password"
-            onChange={handleChange}
-          />
-
-          <button type="submit">Register</button>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-export default Register;
+  navigate("/dashboard");
+};
