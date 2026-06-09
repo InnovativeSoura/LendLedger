@@ -16,6 +16,12 @@ const {
   "../middleware/authMiddleware"
 );
 
+router.get("/test", (req, res) => {
+  res.json({
+    message: "Auth route working",
+  });
+});
+
 router.post(
   "/register",
   registerUser
