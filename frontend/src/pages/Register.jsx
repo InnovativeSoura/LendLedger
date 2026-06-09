@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function Register() {
   const navigate = useNavigate();
@@ -7,68 +8,137 @@ function Register() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
+    upiId: "",
     password: "",
     confirmPassword: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
-  const handleSubmit = (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (formData.password !== formData.confirmPassword) {
-    alert("Passwords do not match");
-    return;
-  }
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
+      alert("Please fill all required fields");
+      return;
+    }
 
-  console.log("Register Data:", formData);
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
 
-  alert("Registration Successful!");
+    try {
+      setLoading(true);
 
-  // Temporary login for testing
-  localStorage.setItem("token", "demo-token");
+      console.log("API URL:", import.meta.env.VITE_API_URL);
 
-  navigate("/dashboard");
-};
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/register`,
+        {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          upiId: formData.upiId,
+          password: formData.password,
+        }
+      );
+
+      console.log("Registration Success:", response.data);
+
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+      }
+
+      alert("Registration Successful!");
+
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Registration Error:", error);
+
+      alert(
+        error.response?.data?.message ||
+          "Registration failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h2>Register</h2>
+        <h2>Create Account</h2>
 
         <form onSubmit={handleSubmit}>
           <input
+            type="text"
             name="name"
-            placeholder="Name"
+            placeholder="Full Name"
+            value={formData.name}
             onChange={handleChange}
+            required
           />
 
           <input
+            type="email"
             name="email"
-            placeholder="Email"
+            placeholder="Email Address"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            type="text"
+            name="phone"
+            placeholder="Phone Number"
+            value={formData.phone}
             onChange={handleChange}
           />
 
           <input
+            type="text"
+            name="upiId"
+            placeholder="UPI ID (e.g. name@paytm)"
+            value={formData.upiId}
+            onChange={handleChange}
+          />
+
+          <input
+            type="password"
             name="password"
-            type="password"
             placeholder="Password"
+            value={formData.password}
             onChange={handleChange}
+            required
           />
 
           <input
-            name="confirmPassword"
             type="password"
+            name="confirmPassword"
             placeholder="Confirm Password"
+            value={formData.confirmPassword}
             onChange={handleChange}
+            required
           />
 
-          <button type="submit">Register</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Registering..." : "Register"}
+          </button>
         </form>
       </div>
     </div>
