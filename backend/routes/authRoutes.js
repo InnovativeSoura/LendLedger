@@ -18,7 +18,8 @@ const {
 
 router.get("/test", (req, res) => {
   res.json({
-    message: "Auth route working",
+    success: true,
+    message: "Auth routes working",
   });
 });
 
