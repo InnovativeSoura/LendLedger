@@ -5,17 +5,20 @@ const router = express.Router();
 const {
   registerUser,
   loginUser,
-  getProfile
+  getProfile,
+  sendOtp,
+  verifyOtp,
 } = require(
   "../controllers/authController"
 );
 
 const {
-  protect
+  protect,
 } = require(
   "../middleware/authMiddleware"
 );
 
+// Test Route
 router.get("/test", (req, res) => {
   res.json({
     success: true,
@@ -23,6 +26,18 @@ router.get("/test", (req, res) => {
   });
 });
 
+// OTP Routes
+router.post(
+  "/send-otp",
+  sendOtp
+);
+
+router.post(
+  "/verify-otp",
+  verifyOtp
+);
+
+// Authentication Routes
 router.post(
   "/register",
   registerUser
@@ -33,6 +48,7 @@ router.post(
   loginUser
 );
 
+// Protected Route
 router.get(
   "/profile",
   protect,
