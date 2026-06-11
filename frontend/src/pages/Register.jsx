@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 
 function Register() {
@@ -44,23 +44,26 @@ function Register() {
     try {
       setLoading(true);
 
-      console.log("API URL:", import.meta.env.VITE_API_URL)/auth/register;
+      const registerUrl = `${import.meta.env.VITE_API_URL}/auth/register`;
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/auth/register`,
-        {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          upiId: formData.upiId,
-          password: formData.password,
-        }
-      );
+      console.log("API URL:", import.meta.env.VITE_API_URL);
+      console.log("Register URL:", registerUrl);
+
+      const response = await axios.post(registerUrl, {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        upiId: formData.upiId,
+        password: formData.password,
+      });
 
       console.log("Registration Success:", response.data);
 
       if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
+        localStorage.setItem(
+          "token",
+          response.data.token
+        );
       }
 
       alert("Registration Successful!");
@@ -68,6 +71,11 @@ function Register() {
       navigate("/dashboard");
     } catch (error) {
       console.error("Registration Error:", error);
+
+      console.log(
+        "Server Response:",
+        error.response?.data
+      );
 
       alert(
         error.response?.data?.message ||
@@ -136,10 +144,27 @@ function Register() {
             required
           />
 
-          <button type="submit" disabled={loading}>
-            {loading ? "Registering..." : "Register"}
+          <button
+            type="submit"
+            disabled={loading}
+          >
+            {loading
+              ? "Registering..."
+              : "Register"}
           </button>
         </form>
+
+        <p
+          style={{
+            marginTop: "15px",
+            textAlign: "center",
+          }}
+        >
+          Already have an account?{" "}
+          <Link to="/login">
+            Login Here
+          </Link>
+        </p>
       </div>
     </div>
   );
