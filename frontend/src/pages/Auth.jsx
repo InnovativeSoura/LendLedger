@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Login from "./Login";
 import Register from "./Register";
+import "../styles/Auth.css";
 
 function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -10,6 +11,7 @@ function Auth() {
       <div className="auth-box">
         <div className="auth-toggle">
           <button
+            type="button"
             className={isLogin ? "active" : ""}
             onClick={() => setIsLogin(true)}
           >
@@ -17,6 +19,7 @@ function Auth() {
           </button>
 
           <button
+            type="button"
             className={!isLogin ? "active" : ""}
             onClick={() => setIsLogin(false)}
           >
