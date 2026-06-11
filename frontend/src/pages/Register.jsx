@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Register() {
@@ -67,7 +67,6 @@ function Register() {
 
       if (response.data.success) {
         setPhoneVerified(true);
-
         alert("Phone verified successfully");
       }
     } catch (error) {
@@ -89,9 +88,9 @@ function Register() {
     if (
       !formData.name ||
       !formData.email ||
+      !formData.upiId ||
       !formData.password ||
-      !formData.confirmPassword ||
-      !formData.upiId
+      !formData.confirmPassword
     ) {
       alert("Please fill all required fields");
       return;
@@ -159,140 +158,137 @@ function Register() {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-box">
-        <h2>Create Account</h2>
+    <>
+      <h2
+        style={{
+          textAlign: "center",
+          marginBottom: "20px",
+        }}
+      >
+        Create Account
+      </h2>
 
-        <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="name"
+          placeholder="Full Name"
+          autoComplete="name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          type="email"
+          name="email"
+          placeholder="Email Address"
+          autoComplete="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
+
+        <div
+          style={{
+            display: "flex",
+            gap: "10px",
+            marginBottom: "10px",
+          }}
+        >
           <input
-            type="text"
-            name="name"
-            placeholder="Full Name"
-            autoComplete="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            autoComplete="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-
-          <div
-            style={{
-              display: "flex",
-              gap: "10px",
-            }}
-          >
-            <input
-              type="tel"
-              name="phone"
-              placeholder="Phone Number"
-              autoComplete="tel"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-            />
-
-            <button
-              type="button"
-              onClick={handleSendOtp}
-            >
-              Send OTP
-            </button>
-          </div>
-
-          {otpSent && (
-            <>
-              <input
-                type="text"
-                placeholder="Enter OTP"
-                value={otp}
-                onChange={(e) =>
-                  setOtp(e.target.value)
-                }
-              />
-
-              <button
-                type="button"
-                onClick={handleVerifyOtp}
-              >
-                Verify OTP
-              </button>
-            </>
-          )}
-
-          {phoneVerified && (
-            <p
-              style={{
-                color: "green",
-                fontWeight: "bold",
-              }}
-            >
-              ✓ Phone Verified
-            </p>
-          )}
-
-          <input
-            type="text"
-            name="upiId"
-            placeholder="UPI ID (e.g. soura@paytm)"
-            value={formData.upiId}
-            onChange={handleChange}
-            pattern="^[a-zA-Z0-9.\\-_]{2,256}@[a-zA-Z]{2,64}$"
-            title="Enter a valid UPI ID"
-            required
-          />
-
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            autoComplete="new-password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirm Password"
-            autoComplete="new-password"
-            value={formData.confirmPassword}
+            type="tel"
+            name="phone"
+            placeholder="Phone Number"
+            autoComplete="tel"
+            value={formData.phone}
             onChange={handleChange}
             required
           />
 
           <button
-            type="submit"
-            disabled={loading}
+            type="button"
+            onClick={handleSendOtp}
           >
-            {loading
-              ? "Registering..."
-              : "Register"}
+            Send OTP
           </button>
-        </form>
+        </div>
 
-        <p
-          style={{
-            textAlign: "center",
-            marginTop: "15px",
-          }}
+        {otpSent && (
+          <>
+            <input
+              type="text"
+              placeholder="Enter OTP"
+              value={otp}
+              onChange={(e) =>
+                setOtp(e.target.value)
+              }
+              required
+            />
+
+            <button
+              type="button"
+              onClick={handleVerifyOtp}
+              style={{
+                marginBottom: "10px",
+              }}
+            >
+              Verify OTP
+            </button>
+          </>
+        )}
+
+        {phoneVerified && (
+          <p
+            style={{
+              color: "green",
+              fontWeight: "bold",
+              marginBottom: "10px",
+            }}
+          >
+            ✓ Phone Verified
+          </p>
+        )}
+
+        <input
+          type="text"
+          name="upiId"
+          placeholder="UPI ID (e.g. soura@paytm)"
+          value={formData.upiId}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          autoComplete="new-password"
+          value={formData.password}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          type="password"
+          name="confirmPassword"
+          placeholder="Confirm Password"
+          autoComplete="new-password"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          required
+        />
+
+        <button
+          type="submit"
+          disabled={loading}
         >
-          Already have an account?{" "}
-          <Link to="/login">
-            Login Here
-          </Link>
-        </p>
-      </div>
-    </div>
+          {loading
+            ? "Registering..."
+            : "Register"}
+        </button>
+      </form>
+    </>
   );
 }
 

@@ -1,49 +1,94 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function Login() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    // TODO: call backend login API here
+    try {
+      setLoading(true);
 
-    // Temporary login
-    localStorage.setItem("token", "demo-token");
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/login`,
+        {
+          email,
+          password,
+        }
+      );
 
-    navigate("/dashboard");
+      if (response.data.token) {
+        localStorage.setItem(
+          "token",
+          response.data.token
+        );
+      }
+
+      alert("Login Successful");
+
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Login Error:", error);
+
+      alert(
+        error.response?.data?.message ||
+          "Login failed"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-box">
-        <h2>Login</h2>
+    <>
+      <h2
+        style={{
+          textAlign: "center",
+          marginBottom: "20px",
+        }}
+      >
+        Login
+      </h2>
 
-        <form onSubmit={handleLogin}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+      <form onSubmit={handleLogin}>
+        <input
+          type="email"
+          placeholder="Email Address"
+          autoComplete="email"
+          value={email}
+          onChange={(e) =>
+            setEmail(e.target.value)
+          }
+          required
+        />
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+        <input
+          type="password"
+          placeholder="Password"
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) =>
+            setPassword(e.target.value)
+          }
+          required
+        />
 
-          <button type="submit">Login</button>
-        </form>
-      </div>
-    </div>
+        <button
+          type="submit"
+          disabled={loading}
+        >
+          {loading
+            ? "Logging in..."
+            : "Login"}
+        </button>
+      </form>
+    </>
   );
 }
 
