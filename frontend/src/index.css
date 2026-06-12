@@ -1,48 +1,102 @@
-body {
+* {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f4f6f9;
+  padding: 0;
+  box-sizing: border-box;
+  font-family:
+  "Segoe UI",
+  sans-serif;
+  }
+
+body {
+background: linear-gradient(
+135deg,
+#667eea,
+#764ba2
+);
+
+min-height: 100vh;
 }
 
-.auth-container {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.auth-page {
+min-height: 100vh;
+
+display: flex;
+
+justify-content: center;
+
+align-items: center;
 }
 
 .auth-box {
-  width: 360px;
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+width: 420px;
+
+background: white;
+
+padding: 30px;
+
+border-radius: 15px;
+
+box-shadow:
+0 10px 25px
+rgba(0, 0, 0, 0.2);
 }
 
-h2 {
-  text-align: center;
-  margin-bottom: 20px;
+.auth-toggle {
+display: flex;
+
+margin-bottom: 20px;
+}
+
+.auth-toggle button {
+flex: 1;
+
+padding: 12px;
+
+border: none;
+
+cursor: pointer;
+
+background: #eee;
+
+font-size: 16px;
+}
+
+.auth-toggle .active {
+background: #667eea;
+
+color: white;
+}
+
+form {
+display: flex;
+
+flex-direction: column;
+
+gap: 12px;
 }
 
 input {
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+padding: 12px;
+
+border: 1px solid #ddd;
+
+border-radius: 8px;
 }
 
 button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+padding: 12px;
+
+border: none;
+
+border-radius: 8px;
+
+background: #667eea;
+
+color: white;
+
+cursor: pointer;
 }
 
 button:hover {
-  background: #1e4fd6;
+opacity: 0.9;
 }

@@ -1,10 +1,7 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Register() {
-const navigate = useNavigate();
-
 const [formData, setFormData] = useState({
 name: "",
 email: "",
@@ -16,85 +13,72 @@ confirmPassword: "",
 
 const [otp, setOtp] = useState("");
 const [otpSent, setOtpSent] = useState(false);
-const [phoneVerified, setPhoneVerified] = useState(false);
-const [loading, setLoading] = useState(false);
-const [otpLoading, setOtpLoading] = useState(false);
+const [emailVerified, setEmailVerified] =
+useState(false);
 
 const handleChange = (e) => {
-setFormData((prev) => ({
-...prev,
-[e.target.name]: e.target.value,
-}));
+setFormData({
+...formData,
+[e.target.name]:
+e.target.value,
+});
 };
 
-const handleSendOtp = async () => {
-const phoneRegex = /^[6-9]\d{9}$/;
-
-
-if (!phoneRegex.test(formData.phone)) {
-  alert(
-    "Enter a valid 10-digit Indian mobile number"
-  );
-  return;
-}
-
+const sendOtp = async () => {
 try {
-  setOtpLoading(true);
+await axios.post(
+`${import.meta.env.VITE_API_URL}/auth/send-otp`,
+{
+email:
+formData.email,
+}
+);
 
-  await axios.post(
-    `${import.meta.env.VITE_API_URL}/auth/send-otp`,
-    {
-      phone: formData.phone,
-    }
-  );
 
   setOtpSent(true);
 
   alert(
-    "OTP sent successfully. Check backend terminal or SMS service."
+    "OTP sent to your email"
   );
 } catch (error) {
-  console.error(error);
-
   alert(
-    error.response?.data?.message ||
+    error.response?.data
+      ?.message ||
       "Failed to send OTP"
   );
-} finally {
-  setOtpLoading(false);
 }
 
 
 };
 
-const handleVerifyOtp = async () => {
-if (!otp) {
-alert("Please enter OTP");
-return;
-}
-
-
+const verifyOtp = async () => {
 try {
-  const response = await axios.post(
-    `${import.meta.env.VITE_API_URL}/auth/verify-otp`,
-    {
-      phone: formData.phone,
-      otp,
-    }
-  );
+const response =
+await axios.post(
+`${import.meta.env.VITE_API_URL}/auth/verify-otp`,
+{
+email:
+formData.email,
+otp,
+}
+);
 
-  if (response.data.success) {
-    setPhoneVerified(true);
+
+  if (
+    response.data.success
+  ) {
+    setEmailVerified(
+      true
+    );
 
     alert(
-      "Phone verified successfully"
+      "Email verified successfully"
     );
   }
 } catch (error) {
-  console.error(error);
-
   alert(
-    error.response?.data?.message ||
+    error.response?.data
+      ?.message ||
       "OTP verification failed"
   );
 }
@@ -102,254 +86,193 @@ try {
 
 };
 
-const handleSubmit = async (e) => {
+const handleSubmit =
+async (e) => {
 e.preventDefault();
 
 
-const emailRegex =
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (
+    !emailVerified
+  ) {
+    return alert(
+      "Verify email first"
+    );
+  }
 
-const phoneRegex =
-  /^[6-9]\d{9}$/;
+  if (
+    formData.password !==
+    formData.confirmPassword
+  ) {
+    return alert(
+      "Passwords do not match"
+    );
+  }
 
-const upiRegex =
-  /^[a-zA-Z0-9._-]{2,256}@[a-zA-Z]{2,64}$/;
+  try {
+    const response =
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/register`,
+        {
+          name: formData.name,
+          email:
+            formData.email,
+          phone:
+            formData.phone,
+          upiId:
+            formData.upiId,
+          password:
+            formData.password,
+        }
+      );
 
-if (
-  !formData.name ||
-  !formData.email ||
-  !formData.phone ||
-  !formData.upiId ||
-  !formData.password ||
-  !formData.confirmPassword
-) {
-  alert("Please fill all fields");
-  return;
-}
-
-if (!emailRegex.test(formData.email)) {
-  alert("Please enter a valid email");
-  return;
-}
-
-if (!phoneRegex.test(formData.phone)) {
-  alert(
-    "Please enter a valid phone number"
-  );
-  return;
-}
-
-if (!upiRegex.test(formData.upiId)) {
-  alert(
-    "Please enter a valid UPI ID"
-  );
-  return;
-}
-
-if (
-  formData.password !==
-  formData.confirmPassword
-) {
-  alert("Passwords do not match");
-  return;
-}
-
-if (!phoneVerified) {
-  alert(
-    "Please verify your phone number first"
-  );
-  return;
-}
-
-try {
-  setLoading(true);
-
-  const response = await axios.post(
-    `${import.meta.env.VITE_API_URL}/auth/register`,
-    {
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      upiId: formData.upiId,
-      password: formData.password,
-    }
-  );
-
-  if (response.data.token) {
     localStorage.setItem(
       "token",
       response.data.token
     );
+
+    alert(
+      "Registration Successful"
+    );
+
+    window.location.reload();
+  } catch (error) {
+    alert(
+      error.response?.data
+        ?.message ||
+        "Registration failed"
+    );
   }
-
-  alert(
-    "Registration Successful!"
-  );
-
-  navigate("/dashboard");
-
-} catch (error) {
-  console.error(
-    "Registration Error:",
-    error
-  );
-
-  alert(
-    error.response?.data?.message ||
-      "Registration failed"
-  );
-} finally {
-  setLoading(false);
-}
-
-
 };
 
+
 return (
-<>
-<h2
-style={{
-textAlign: "center",
-marginBottom: "20px",
-}}
+<form
+onSubmit={
+handleSubmit
+}
 >
-Create Account </h2>
+<input
+type="text"
+name="name"
+placeholder="Full Name"
+value={
+formData.name
+}
+onChange={
+handleChange
+}
+required
+/>
 
 
-  <form onSubmit={handleSubmit}>
-    <input
-      type="text"
-      name="name"
-      placeholder="Full Name"
-      autoComplete="name"
-      value={formData.name}
-      onChange={handleChange}
-      required
-    />
+  <input
+    type="email"
+    name="email"
+    placeholder="Email"
+    value={
+      formData.email
+    }
+    onChange={
+      handleChange
+    }
+    required
+  />
 
-    <input
-      type="email"
-      name="email"
-      placeholder="Email Address"
-      autoComplete="email"
-      value={formData.email}
-      onChange={handleChange}
-      required
-    />
+  <button
+    type="button"
+    onClick={sendOtp}
+  >
+    Send OTP
+  </button>
 
-    <div
-      style={{
-        display: "flex",
-        gap: "10px",
-        marginBottom: "10px",
-      }}
-    >
+  {otpSent && (
+    <>
       <input
-        type="tel"
-        name="phone"
-        placeholder="Phone Number"
-        autoComplete="tel"
-        value={formData.phone}
-        onChange={handleChange}
-        required
+        type="text"
+        placeholder="Enter OTP"
+        value={otp}
+        onChange={(e) =>
+          setOtp(
+            e.target.value
+          )
+        }
       />
 
       <button
         type="button"
-        onClick={handleSendOtp}
-        disabled={
-          otpLoading ||
-          phoneVerified
+        onClick={
+          verifyOtp
         }
       >
-        {otpLoading
-          ? "Sending..."
-          : "Send OTP"}
+        Verify OTP
       </button>
-    </div>
+    </>
+  )}
 
-    {otpSent && !phoneVerified && (
-      <>
-        <input
-          type="text"
-          placeholder="Enter OTP"
-          value={otp}
-          onChange={(e) =>
-            setOtp(
-              e.target.value
-            )
-          }
-          required
-        />
+  {emailVerified && (
+    <p>
+      ✅ Email Verified
+    </p>
+  )}
 
-        <button
-          type="button"
-          onClick={
-            handleVerifyOtp
-          }
-          style={{
-            marginBottom:
-              "10px",
-          }}
-        >
-          Verify OTP
-        </button>
-      </>
-    )}
+  <input
+    type="tel"
+    name="phone"
+    placeholder="Phone Number"
+    value={
+      formData.phone
+    }
+    onChange={
+      handleChange
+    }
+    required
+  />
 
-    {phoneVerified && (
-      <p
-        style={{
-          color: "green",
-          fontWeight:
-            "bold",
-          marginBottom:
-            "10px",
-        }}
-      >
-        ✓ Phone Verified
-      </p>
-    )}
+  <input
+    type="text"
+    name="upiId"
+    placeholder="UPI ID"
+    value={
+      formData.upiId
+    }
+    onChange={
+      handleChange
+    }
+    required
+  />
 
-    <input
-      type="text"
-      name="upiId"
-      placeholder="UPI ID (e.g. soura@paytm)"
-      value={formData.upiId}
-      onChange={handleChange}
-      required
-    />
+  <input
+    type="password"
+    name="password"
+    placeholder="Password"
+    value={
+      formData.password
+    }
+    onChange={
+      handleChange
+    }
+    required
+  />
 
-    <input
-      type="password"
-      name="password"
-      placeholder="Password"
-      autoComplete="new-password"
-      value={formData.password}
-      onChange={handleChange}
-      required
-    />
+  <input
+    type="password"
+    name="confirmPassword"
+    placeholder="Confirm Password"
+    value={
+      formData.confirmPassword
+    }
+    onChange={
+      handleChange
+    }
+    required
+  />
 
-    <input
-      type="password"
-      name="confirmPassword"
-      placeholder="Confirm Password"
-      autoComplete="new-password"
-      value={formData.confirmPassword}
-      onChange={handleChange}
-      required
-    />
-
-    <button
-      type="submit"
-      disabled={loading}
-    >
-      {loading
-        ? "Registering..."
-        : "Register"}
-    </button>
-  </form>
-</>
+  <button
+    type="submit"
+  >
+    Register
+  </button>
+</form>
 
 
 );

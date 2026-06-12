@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const Otp = require("../models/Otp");
+const sendEmail = require("../utils/sendEmail");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -14,23 +15,26 @@ expiresIn: "7d",
 );
 };
 
-// Send OTP
+// =========================
+// Send Email OTP
+// =========================
 const sendOtp = async (req, res) => {
 try {
-const { phone } = req.body;
+const { email } = req.body;
 
 
-if (!phone) {
+if (!email) {
   return res.status(400).json({
-    message: "Phone number is required",
+    message: "Email is required",
   });
 }
 
-const phoneRegex = /^[6-9]\d{9}$/;
+const emailRegex =
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-if (!phoneRegex.test(phone)) {
+if (!emailRegex.test(email)) {
   return res.status(400).json({
-    message: "Invalid phone number",
+    message: "Invalid email address",
   });
 }
 
@@ -38,10 +42,10 @@ const otp = Math.floor(
   100000 + Math.random() * 900000
 ).toString();
 
-await Otp.deleteMany({ phone });
+await Otp.deleteMany({ email });
 
 await Otp.create({
-  phone,
+  email,
   otp,
   verified: false,
   expiresAt: new Date(
@@ -49,7 +53,16 @@ await Otp.create({
   ),
 });
 
-console.log(`OTP for ${phone}: ${otp}`);
+await sendEmail(
+  email,
+  "LendLedger OTP Verification",
+  <div>
+  <h2>Email Verification</h2>
+  <p>Your OTP is:</p>
+  <h1>{otp}</h1>
+  <p>This OTP is valid for 5 minutes.</p>
+</div>
+);
 
 res.status(200).json({
   success: true,
@@ -58,21 +71,27 @@ res.status(200).json({
 
 
 } catch (error) {
+console.error(error);
+
+
 res.status(500).json({
-message: error.message,
+  message: error.message,
 });
+
+
 }
 };
 
-// Verify OTP
+// =========================
+// Verify Email OTP
+// =========================
 const verifyOtp = async (req, res) => {
 try {
-const { phone, otp } = req.body;
+const { email, otp } = req.body;
 
 
-const otpRecord = await Otp.findOne({
-  phone,
-});
+const otpRecord =
+  await Otp.findOne({ email });
 
 if (!otpRecord) {
   return res.status(400).json({
@@ -80,13 +99,18 @@ if (!otpRecord) {
   });
 }
 
-if (otpRecord.expiresAt < new Date()) {
+if (
+  otpRecord.expiresAt <
+  new Date()
+) {
   return res.status(400).json({
     message: "OTP expired",
   });
 }
 
-if (otpRecord.otp !== otp) {
+if (
+  otpRecord.otp !== otp
+) {
   return res.status(400).json({
     message: "Invalid OTP",
   });
@@ -97,7 +121,7 @@ await otpRecord.save();
 
 res.status(200).json({
   success: true,
-  message: "Phone verified",
+  message: "Email verified successfully",
 });
 
 
@@ -108,7 +132,9 @@ message: error.message,
 }
 };
 
+// =========================
 // Register User
+// =========================
 const registerUser = async (req, res) => {
 try {
 const {
@@ -159,21 +185,23 @@ if (!upiRegex.test(upiId)) {
   });
 }
 
-const verifiedOtp = await Otp.findOne({
-  phone,
-  verified: true,
-});
+const verifiedOtp =
+  await Otp.findOne({
+    email,
+    verified: true,
+  });
 
 if (!verifiedOtp) {
   return res.status(400).json({
     message:
-      "Please verify your phone number first",
+      "Please verify your email first",
   });
 }
 
-const emailExists = await User.findOne({
-  email,
-});
+const emailExists =
+  await User.findOne({
+    email,
+  });
 
 if (emailExists) {
   return res.status(400).json({
@@ -182,9 +210,10 @@ if (emailExists) {
   });
 }
 
-const phoneExists = await User.findOne({
-  phone,
-});
+const phoneExists =
+  await User.findOne({
+    phone,
+  });
 
 if (phoneExists) {
   return res.status(400).json({
@@ -193,9 +222,10 @@ if (phoneExists) {
   });
 }
 
-const upiExists = await User.findOne({
-  upiId,
-});
+const upiExists =
+  await User.findOne({
+    upiId,
+  });
 
 if (upiExists) {
   return res.status(400).json({
@@ -204,21 +234,28 @@ if (upiExists) {
   });
 }
 
-const salt = await bcrypt.genSalt(10);
+const salt =
+  await bcrypt.genSalt(10);
 
 const hashedPassword =
-  await bcrypt.hash(password, salt);
+  await bcrypt.hash(
+    password,
+    salt
+  );
 
-const user = await User.create({
-  name,
+const user =
+  await User.create({
+    name,
+    email,
+    phone,
+    upiId,
+    password:
+      hashedPassword,
+  });
+
+await Otp.deleteMany({
   email,
-  phone,
-  upiId,
-  password: hashedPassword,
-  phoneVerified: true,
 });
-
-await Otp.deleteMany({ phone });
 
 res.status(201).json({
   _id: user._id,
@@ -226,7 +263,9 @@ res.status(201).json({
   email: user.email,
   phone: user.phone,
   upiId: user.upiId,
-  token: generateToken(user._id),
+  token: generateToken(
+    user._id
+  ),
 });
 
 
@@ -242,15 +281,24 @@ res.status(500).json({
 }
 };
 
+// =========================
 // Login User
-const loginUser = async (req, res) => {
+// =========================
+const loginUser = async (
+req,
+res
+) => {
 try {
-const { email, password } =
-req.body;
+const {
+email,
+password,
+} = req.body;
 
 
 const user =
-  await User.findOne({ email });
+  await User.findOne({
+    email,
+  });
 
 if (
   user &&
@@ -272,7 +320,8 @@ if (
 }
 
 res.status(401).json({
-  message: "Invalid credentials",
+  message:
+    "Invalid credentials",
 });
 
 
@@ -283,8 +332,13 @@ message: error.message,
 }
 };
 
+// =========================
 // Get Profile
-const getProfile = async (req, res) => {
+// =========================
+const getProfile = async (
+req,
+res
+) => {
 try {
 const user =
 await User.findById(

@@ -1,21 +1,24 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, {
+useState,
+} from "react";
 import axios from "axios";
 
 function Login() {
-  const navigate = useNavigate();
+const [email, setEmail] =
+useState("");
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+const [password,
+setPassword] =
+useState("");
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+const handleLogin =
+async (e) => {
+e.preventDefault();
 
-    try {
-      setLoading(true);
 
-      const response = await axios.post(
+  try {
+    const response =
+      await axios.post(
         `${import.meta.env.VITE_API_URL}/auth/login`,
         {
           email,
@@ -23,73 +26,66 @@ function Login() {
         }
       );
 
-      if (response.data.token) {
-        localStorage.setItem(
-          "token",
-          response.data.token
-        );
-      }
+    localStorage.setItem(
+      "token",
+      response.data.token
+    );
 
-      alert("Login Successful");
+    window.location.href =
+      "/dashboard";
 
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("Login Error:", error);
+  } catch (error) {
+    alert(
+      error.response?.data
+        ?.message ||
+        "Login failed"
+    );
+  }
+};
 
-      alert(
-        error.response?.data?.message ||
-          "Login failed"
-      );
-    } finally {
-      setLoading(false);
+
+return (
+<form
+onSubmit={
+handleLogin
+}
+>
+<input
+type="email"
+placeholder="Email"
+value={email}
+onChange={(e) =>
+setEmail(
+e.target.value
+)
+}
+required
+/>
+
+
+  <input
+    type="password"
+    placeholder="Password"
+    value={
+      password
     }
-  };
+    onChange={(e) =>
+      setPassword(
+        e.target.value
+      )
+    }
+    required
+  />
 
-  return (
-    <>
-      <h2
-        style={{
-          textAlign: "center",
-          marginBottom: "20px",
-        }}
-      >
-        Login
-      </h2>
+  <button
+    type="submit"
+  >
+    Login
+  </button>
+</form>
 
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email Address"
-          autoComplete="email"
-          value={email}
-          onChange={(e) =>
-            setEmail(e.target.value)
-          }
-          required
-        />
 
-        <input
-          type="password"
-          placeholder="Password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) =>
-            setPassword(e.target.value)
-          }
-          required
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-        >
-          {loading
-            ? "Logging in..."
-            : "Login"}
-        </button>
-      </form>
-    </>
-  );
+);
 }
 
 export default Login;
