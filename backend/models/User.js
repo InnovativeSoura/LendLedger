@@ -4,58 +4,52 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Name is required"],
+      required: true,
       trim: true,
-      minlength: 2,
     },
 
     email: {
       type: String,
-      required: [true, "Email is required"],
+      required: true,
       unique: true,
       lowercase: true,
-      trim: true,
-      match: [
-        /^\S+@\S+\.\S+$/,
-        "Please enter a valid email address",
-      ],
     },
 
     phone: {
       type: String,
-      trim: true,
-      default: "",
-      match: [
-        /^[6-9]\d{9}$/,
-        "Please enter a valid 10-digit mobile number",
-      ],
+      required: true,
+      unique: true,
     },
 
     upiId: {
       type: String,
-      required: [true, "UPI ID is required"],
-      trim: true,
-      lowercase: true,
+      required: true,
+      unique: true,
       validate: {
-        validator: function (value) {
-          return /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/.test(
-            value
-          );
+        validator: function (v) {
+          return /^[a-zA-Z0-9._-]{2,256}@[a-zA-Z]{2,64}$/.test(v);
         },
-        message:
-          "Please enter a valid UPI ID (e.g. soura@paytm)",
+        message: "Invalid UPI ID",
       },
+    },
+
+    phoneVerified: {
+      type: Boolean,
+      default: false,
     },
 
     password: {
       type: String,
-      required: [true, "Password is required"],
-      minlength: 6,
+      required: true,
     },
+
   },
   {
     timestamps: true,
   }
 );
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model(
+"User",
+userSchema
+);
