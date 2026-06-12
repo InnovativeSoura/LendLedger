@@ -55,13 +55,15 @@ await Otp.create({
 
 await sendEmail(
   email,
-  "LendLedger OTP Verification",
+   "LendLedger OTP Verification",
+  `
   <div>
-  <h2>Email Verification</h2>
-  <p>Your OTP is:</p>
-  <h1>{otp}</h1>
-  <p>This OTP is valid for 5 minutes.</p>
-</div>
+    <h2>Email Verification</h2>
+    <p>Your OTP is:</p>
+    <h1>${otp}</h1>
+    <p>This OTP is valid for 5 minutes.</p>
+  </div>
+  `
 );
 
 res.status(200).json({
